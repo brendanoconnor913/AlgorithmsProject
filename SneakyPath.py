@@ -1,4 +1,5 @@
 import copy
+import psutil
 
 # Function for making nodes x nodes size matrix filled with 'default'
 def makeMatrix(nodes, default, diagonal):
@@ -29,8 +30,9 @@ def print3DMatrix(m3):
         i += 1
 
 # parameters: filein = input, BIGINT ~ INFINITI for this exercise
-filein = open("input.txt")
-BIGINT = 999
+filein = open("input9.txt")
+BIGINT = 99999
+kbCounter = 0
 
 # Consturct the matricies from input file
 for line in filein:
@@ -58,14 +60,17 @@ for line in filein:
 
 filein.close()
 
-# Construct arrays for tracking changes in each iteraton of algorithm
+# Construct arrays for tracking changes in each iteration of algorithm
 allTimes = []
 allTimes.append(times)
 allStops = []
 allStops.append(stops)
 
 # print 0
-# printMatrix(allTimes[0])
+print "Please note: All values along any diagonal is an edge or path to itself so the values are meaningless and should" \
+      " be ignored."
+print "Matrix that gives travel times from node (row number, i) to node (column number, j):"
+printMatrix(allTimes[0])
 # printMatrix(allStops[0])
 
 # Apply Floyd-Warshall on travel times matrix
@@ -81,12 +86,15 @@ for n in range(1, numNodes+1):
 
             directPath = currentTime[i][j]
             indirectPath = currentTime[i][n-1] + currentTime[n-1][j]
+            kbCounter += 1
             if directPath <= indirectPath:
                 nextTime[i][j] = directPath
                 nextStop[i][j] = currentStop[i][j]
+                kbCounter += 2
             else:
                 nextTime[i][j] = indirectPath
                 nextStop[i][j] = n-1
+                kbCounter += 2
 
     # print n
     # print "Travel time: "
@@ -96,46 +104,46 @@ for n in range(1, numNodes+1):
     allTimes.append(nextTime)
     allStops.append(nextStop)
 
+print "Matrix that gives SHORTEST travel times from node (row number, i) to node (column number, j):"
+printMatrix(allTimes[6])
+
 # Create matricies to keep track of paths and flow on each edge
 pathMatrix = makeMatrix(numNodes, 0, False)
 stopMatrix = allStops[6]
 edgeFlowMatrix = makeMatrix(numNodes, 0, False)
 
-print "Stop Matrix"
-printMatrix(stopMatrix)
-print "times"
-printMatrix(times)
+# print "Stop Matrix"
+# printMatrix(stopMatrix)
 
 # Construct matrix with the paths and edge traffic
 for i in range(numNodes):
     for j in range(numNodes):
         if i == j:
             pathMatrix[i][j] = j
+            kbCounter += 1
             continue
         if times[i][j] == BIGINT:
             edgeFlowMatrix[i][j] = BIGINT
+            kbCounter += 1
 
         ii = i
         jj = j
         path = [i]
+        kbCounter += 1
         while stopMatrix[ii][jj] != BIGINT:
             path.append(stopMatrix[ii][jj])
             prevstop = ii
             ii = stopMatrix[ii][jj]
             edgeFlowMatrix[prevstop][ii] = edgeFlowMatrix[prevstop][ii] + flows[i][j]
+            kbCounter += 1
         pathMatrix[i][j] = path
+        kbCounter += 1
 
-# Any un-used edge (typically non existent paths) need large flow value
-for i in range(numNodes):
-    for j in range(numNodes):
-        if edgeFlowMatrix[i][j] == 0:
-            edgeFlowMatrix[i][j] = BIGINT
-
-print "Path matrix:"
-printMatrix(pathMatrix)
-print "Flows:"
+print "Matrix that gives amount of flow from node (row number, i) to node (column number, j):"
 printMatrix(flows)
-print "Edge Flows"
+print "Matrix of path taken from node (row number, i) to node (column number, j):"
+printMatrix(pathMatrix)
+print "Matrix that shows the amount of traffic on each edge assuming they take the path in the above matrix:"
 printMatrix(edgeFlowMatrix)
 
 allFlows = []
@@ -153,22 +161,26 @@ for n in range(1, numNodes+1):
             if i == j:
                 # nextFlow[i][j] = 0
                 nextStop[i][j] = " "
+                kbCounter += 1
                 continue
             currentFlow = allFlows[n-1]
             currentStop = allStops2[n-1]
 
             directPath = currentFlow[i][j]
             indirectPath = currentFlow[i][n-1] + currentFlow[n-1][j]
+            kbCounter += 1
             if directPath <= indirectPath:
                 nextFlow[i][j] = directPath
                 nextStop[i][j] = currentStop[i][j]
+                kbCounter += 2
             else:
                 nextFlow[i][j] = indirectPath
                 nextStop[i][j] = n-1
+                kbCounter += 2
     allFlows.append(nextFlow)
     allStops2.append(nextStop)
 
-print "Final Flows:"
+print "Matrix for the Sneakiest path between two nodes:"
 printMatrix(allFlows[6])
 
 # Construct matrix for path taken
@@ -187,6 +199,7 @@ for i in range(numNodes):
             maxPathEdgeMatrix[i][j] = " "
             sumPathMatrix[i][j] = " "
             minPathEdgeMatrix[i][j] = " "
+            kbCounter += 4
             continue
 
         ii = i
@@ -199,20 +212,28 @@ for i in range(numNodes):
             minPathEdgeMatrix[i][j] = min(minPathEdgeMatrix[i][j], allFlows[6][flowprevstop][ii])
             maxPathEdgeMatrix[i][j] = max(maxPathEdgeMatrix[i][j], allFlows[6][flowprevstop][ii])
             sumPathMatrix[i][j] = sumPathMatrix[i][j] + allFlows[6][flowprevstop][ii]
+            kbCounter += 3
         flowPathMatrix[i][j] = flowPath
         hopPathMatrix[i][j] = (len(flowPath)-1)
         avePathMatrix[i][j] = float(sumPathMatrix[i][j]) / (len(flowPath)-1)
+        kbCounter += 3
 
 # Output results
-print "Flow Path Matrix"
+print "Matrix of path to take for sneakiest path between two nodes:"
 printMatrix(flowPathMatrix)
-print "Min edge Matrix"
+print "Matrix of minimum traffic edge on sneaky path:"
 printMatrix(minPathEdgeMatrix)
-print "Max edge matrix"
+print "Matrix of maximum traffic edge on sneaky path:"
 printMatrix(maxPathEdgeMatrix)
-print "Sum Matrix"
+print "Matrix of total traffic on sneaky path:"
 printMatrix(sumPathMatrix)
-print "Hop Matrix"
+print "Matrix of number of edges taken on sneaky path:"
 printMatrix(hopPathMatrix)
-print "Ave Matrix"
+print "Matrix of average traffic for an edge on sneaky path:"
 printMatrix(avePathMatrix)
+print "Number of nodes"
+print numNodes
+print "Number of Key and Basic operations performed"
+print kbCounter
+print "CPU Util"
+print psutil.cpu_percent()
