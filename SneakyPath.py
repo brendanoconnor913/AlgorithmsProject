@@ -30,8 +30,8 @@ def print3DMatrix(m3):
         i += 1
 
 # parameters: filein = input, BIGINT ~ INFINITI for this exercise
-filein = open("input9.txt")
-BIGINT = 99999
+filein = open("input3.txt")
+BIGINT = 9999999999
 kbCounter = 0
 
 # Consturct the matricies from input file
@@ -105,11 +105,11 @@ for n in range(1, numNodes+1):
     allStops.append(nextStop)
 
 print "Matrix that gives SHORTEST travel times from node (row number, i) to node (column number, j):"
-printMatrix(allTimes[6])
+printMatrix(allTimes[10])
 
 # Create matricies to keep track of paths and flow on each edge
 pathMatrix = makeMatrix(numNodes, 0, False)
-stopMatrix = allStops[6]
+stopMatrix = allStops[numNodes]
 edgeFlowMatrix = makeMatrix(numNodes, 0, False)
 
 # print "Stop Matrix"
@@ -120,6 +120,7 @@ for i in range(numNodes):
     for j in range(numNodes):
         if i == j:
             pathMatrix[i][j] = j
+            edgeFlowMatrix[i][j] = j
             kbCounter += 1
             continue
         if times[i][j] == BIGINT:
@@ -180,12 +181,12 @@ for n in range(1, numNodes+1):
     allFlows.append(nextFlow)
     allStops2.append(nextStop)
 
-print "Matrix for the Sneakiest path between two nodes:"
-printMatrix(allFlows[6])
+# print "Matrix for the Sneakiest path between two nodes:"
+printMatrix(allFlows[numNodes])
 
 # Construct matrix for path taken
 flowPathMatrix = makeMatrix(numNodes, 0, False)
-flowStopMatrix = allStops2[6]
+flowStopMatrix = allStops2[numNodes]
 sumPathMatrix = makeMatrix(numNodes, 0, False)
 hopPathMatrix = makeMatrix(numNodes, 0, False)
 avePathMatrix = makeMatrix(numNodes, 0, False)
@@ -209,9 +210,9 @@ for i in range(numNodes):
             flowPath.append(flowStopMatrix[ii][jj])
             flowprevstop = ii
             ii = flowStopMatrix[ii][jj]
-            minPathEdgeMatrix[i][j] = min(minPathEdgeMatrix[i][j], allFlows[6][flowprevstop][ii])
-            maxPathEdgeMatrix[i][j] = max(maxPathEdgeMatrix[i][j], allFlows[6][flowprevstop][ii])
-            sumPathMatrix[i][j] = sumPathMatrix[i][j] + allFlows[6][flowprevstop][ii]
+            minPathEdgeMatrix[i][j] = min(minPathEdgeMatrix[i][j], allFlows[numNodes][flowprevstop][ii])
+            maxPathEdgeMatrix[i][j] = max(maxPathEdgeMatrix[i][j], allFlows[numNodes][flowprevstop][ii])
+            sumPathMatrix[i][j] = sumPathMatrix[i][j] + allFlows[numNodes][flowprevstop][ii]
             kbCounter += 3
         flowPathMatrix[i][j] = flowPath
         hopPathMatrix[i][j] = (len(flowPath)-1)
@@ -221,19 +222,24 @@ for i in range(numNodes):
 # Output results
 print "Matrix of path to take for sneakiest path between two nodes:"
 printMatrix(flowPathMatrix)
-print "Matrix of minimum traffic edge on sneaky path:"
-printMatrix(minPathEdgeMatrix)
-print "Matrix of maximum traffic edge on sneaky path:"
-printMatrix(maxPathEdgeMatrix)
-print "Matrix of total traffic on sneaky path:"
-printMatrix(sumPathMatrix)
-print "Matrix of number of edges taken on sneaky path:"
-printMatrix(hopPathMatrix)
-print "Matrix of average traffic for an edge on sneaky path:"
-printMatrix(avePathMatrix)
-print "Number of nodes"
-print numNodes
-print "Number of Key and Basic operations performed"
-print kbCounter
-print "CPU Util"
-print psutil.cpu_percent()
+# print "Matrix of minimum traffic edge on sneaky path:"
+# printMatrix(minPathEdgeMatrix)
+# print "Matrix of maximum traffic edge on sneaky path:"
+# printMatrix(maxPathEdgeMatrix)
+# print "Matrix of total traffic on sneaky path:"
+# printMatrix(sumPathMatrix)
+# print "Matrix of number of edges taken on sneaky path:"
+# printMatrix(hopPathMatrix)
+# print "Matrix of average traffic for an edge on sneaky path:"
+# printMatrix(avePathMatrix)
+# print "Number of nodes"
+# print numNodes
+# print "Number of Key and Basic operations performed"
+# print kbCounter
+# print "CPU Util"
+# print psutil.cpu_percent()
+#
+print "Sneakiest path from " + str(startNode+1) + " to " + str(endNode+1)
+print allFlows[numNodes][startNode][endNode]
+print "Path (add 1 to each node)"
+print flowPathMatrix[startNode][endNode]
